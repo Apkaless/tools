@@ -63,6 +63,7 @@ def check_status():
         status = 'Offline'
 
     return status
+    
 
 def intro():
     red = Fore.RED
@@ -120,19 +121,23 @@ if __name__ == '__main__':
 
     try:
 
-        for i in range(200):
 
-            for proxy in proxies_list:
-                os.system('cls')
-                th = Thread(target=checker, args=(proxy,))
-                th.start()
-                threads.append(th)
-                print(f'{white}[{str(datetime.time(datetime.now())).split(".")[0]}] {green}[+] Http: [{len(http_proxies)}] | {green}[+] Socks4: [{len(socks4_proxies)}] | [+] Socks5: [{len(socks5_proxies)}] | {red}[-] Dead: [{len(errors)}]', end=f'{green} ----> I / R / A / Q ', flush=True)
-                sleep(0.03)
+        for proxy in proxies_list:
+            os.system('cls')
+            th = Thread(target=checker, args=(proxy,))
+            th.start()
+            threads.append(th)
+            print(f'{white}[{str(datetime.time(datetime.now())).split(".")[0]}] {green}[+] Http: [{len(http_proxies)}] | {green}[+] Socks4: [{len(socks4_proxies)}] | [+] Socks5: [{len(socks5_proxies)}] | {red}[-] Dead: [{len(errors)}]', end=f'{green} ----> I / R / A / Q ', flush=True)
+            sleep(0.03)
+
         for thread in threads:
             thread.join()
+        
+        print('\n[+] All Proxies Has been Saved.\n')
+        sleep(5)
+        exit(0)
 
     except KeyboardInterrupt:
         print('\n[+] All Proxies Has been Saved.\n')
-        sleep(2)
+        sleep(5)
         exit(0)
