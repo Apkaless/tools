@@ -107,7 +107,8 @@ def dominator(email, password):
             exit(0)
 
         print(f'{green}[+] Login Success !\n')
-        
+        time.sleep(2)
+        os.system('cls')
         counter = 0
 
         falseUsers = []
@@ -189,7 +190,7 @@ def dominator(email, password):
                         # print(f'\n{counter}) Flagged User ===> {username}\n====================\n')
                         globalFalse.append(username)
                         time.sleep(2)
-                os.system('cls')
+                    os.system('cls')
             except IndexError:
                 continue
 
