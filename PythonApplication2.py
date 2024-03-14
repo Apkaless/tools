@@ -1,7 +1,10 @@
+from asyncio import threads
 import random
 import socket
 import subprocess
 import os
+import threading
+from typing import Text
 from colorama import Fore, init
 from phonenumbers.util import prnt
 import requests
@@ -36,6 +39,11 @@ import webbrowser
 import psutil
 import pywifi
 from pywifi import const
+from pytools.proxy_scraper import SCRAPER
+from pytools.pythonic_way_proxy_checker import HttpProxyChecker, Socks4ProxyChecker, Socks5ProxyChecker
+import re
+import cloudscraper
+import string
 
 def phoneNumberTracker(phoneNumber):
     os.system('cls')
@@ -948,6 +956,41 @@ def restart_adapter(adapters):
             input('')
     return None
 
+
+
+def machineID_spoofer():
+    
+    for i in range(3):
+    
+        if i == 1:
+            
+            letters = string.ascii_letters + string.digits
+            machine_id = ''.join(random.choice(letters) for i in range(8)) + '-' + ''.join(random.choice(letters) for i in range(4)) + '-' + ''.join(random.choice(letters) for i in range(4)) \
+                                + '-' + ''.join(random.choice(letters) for i in range(4)) + '-' + ''.join(random.choice(letters) for i in range(12))   #232E5638-1D2C-4105-A38D-41F72B7E86B6
+    
+            machine_id = '{%s}' %(machine_id.upper())
+    
+            res = subprocess.check_output(fr'reg add HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\SQMClient /v MachineId /t REG_SZ /d {machine_id} /f', shell=True, Text=True, stderr=subprocess.PIPE)
+            
+        elif i == 2:
+            
+            letters = string.ascii_letters + string.digits
+            machine_id = ''.join(random.choice(letters) for i in range(8)) + '-' + ''.join(random.choice(letters) for i in range(4)) + '-' + ''.join(random.choice(letters) for i in range(4)) \
+                                + '-' + ''.join(random.choice(letters) for i in range(4)) + '-' + ''.join(random.choice(letters) for i in range(12))   #232E5638-1D2C-4105-A38D-41F72B7E86B6
+            
+            res = subprocess.check_output(fr'reg add HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography /v MachineGuid /t REG_SZ /d {machine_id} /f', shell=True, Text=True, stderr=subprocess.PIPE)
+        
+        elif i == 3:
+            
+            digits = '0483A'   # 00330-80000-00000-AA808
+            
+            machine_id = ''.join(random.choice(digits) for i in range(5)) + '-' + ''.join(random.choice(digits) for i in range(5)) + '-' + ''.join(random.choice(digits) for i in range(5)) \
+                                + '-' + ''.join(random.choice(digits) for i in range(5))
+            
+            res = subprocess.check_output(fr'reg add HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion /v ProductId /t REG_SZ /d {machine_id} /f', shell=True, Text=True, stderr=subprocess.PIPE)
+            
+    return True
+
 def hwid_spoofer():
     
     connected_interfaces = []
@@ -1031,6 +1074,377 @@ def hwid_spoofer():
 
     return success
 
+def proxy_gen():
+    from threading import Thread
+    os.system('cls')
+    os.chdir(tool_parent_dir)
+    threads = []
+    p1 = Thread(target=SCRAPER.proxy_1)
+    p2 = Thread(target=SCRAPER.proxy_2)
+    p3 = Thread(target=SCRAPER.proxyScraper)
+    p4 = Thread(target=SCRAPER.proxyScraper_2)
+    
+    p1.start()
+    threads.append(p1)
+    time.sleep(1)
+    p2.start()
+    threads.append(p2)
+    time.sleep(1)
+    p3.start()
+    threads.append(p3)
+    time.sleep(3)
+    p4.start()
+    threads.append(p4)
+    time.sleep(4)
+    
+    for thread in threads:
+        thread.join()
+        
+    try:
+        proxies = SCRAPER.proxies
+        b = len(proxies)
+        new = [prx for prx in dict.fromkeys(proxies)]
+        a = len(new)
+    except:
+        pass
+    
+    for proxy in new:
+        with open('scraped_proxies.txt', 'a') as file:
+            file.writelines([proxy, '\n'])
+            file.close()
+    print(f'\n{green}[+] Total Proxies: {white}{b}\n{green}[+]{red} {b-a} Duplicated Proxies {green}Has Been Removed.\n{green}[+] Saved Into: {white}Scraped_proxies.txt')
+
+def proxy_check(prx_list):
+    os.system('cls')
+    os.chdir(tool_parent_dir)
+    def save_working(proxy, type):
+        
+        with open(f'{type}.txt', 'a') as f:
+            f.writelines([proxy, '\n'])
+            f.close()
+     
+    def check(proxy):
+        
+            
+        http_prx = HttpProxyChecker(proxy, 10).start_checker()
+        socks4_prx = Socks4ProxyChecker(proxy, 10).start_checker()
+        socks5_prx = Socks5ProxyChecker(proxy, 10).start_checker()
+            
+        if http_prx:
+            http_proxies.append(proxy)
+            save_working(proxy, 'http')
+        elif socks4_prx:
+            socks4_proxies.append(proxy)
+            save_working(proxy, 'socks4')
+        elif socks5_prx:
+            socks5_proxies.append(proxy)
+            save_working(proxy, 'socks5')
+        else:
+            errors.append(proxy)
+            
+    with open(prx_list, 'r') as f:
+        
+        proxies = []
+        threds = []
+        http_proxies = []
+        socks4_proxies = []
+        socks5_proxies = []
+        errors = []
+        
+        for prx in f:
+            prx = prx.strip('\n')
+            proxies.append(prx)
+        
+        for proxy in proxies:
+            
+            th = Thread(target=check, args=(proxy,))
+            th.start()
+            threds.append(th)
+        
+            print(f'\r{green}Http({len(http_proxies)}) :: {cyan}Socks4({len(socks4_proxies)}) :: {lmagenta}Socks5({len(socks5_proxies)}) :: {red}Errors({len(errors)})', end='   ')
+
+def network_optimization():
+    
+
+    mac_address = []
+    ips = []
+    def cls():
+
+        os.system('cls')
+
+        return True
+
+
+    def find_mac_address_of_current_adapter():
+        
+        for iface, address in psutil.net_if_addrs().items():
+            for addr in address:
+                if addr.family == psutil.AF_LINK:
+                    mac_address = addr.address
+                elif addr.family == 2:
+                    ips.append(addr.address)
+        
+        return mac_address[0], ips[0]
+        
+    def find_adapter_registry_key(tr_name):
+
+        res = subprocess.check_output(r'reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Class\{4d36e972-e325-11ce-bfc1-08002be10318}', shell=True)
+
+
+        devices = re.findall(r'HKEY_LOCAL_MACHINE\\.+',res.decode().strip())
+
+        for device in devices[1:]:
+
+            res = subprocess.check_output(f'reg query {device}', shell=True).decode().strip()
+
+            if tr_name in res:
+
+                return device
+
+
+
+
+    def get_transport_name(mac_address):
+        cls()
+        res = subprocess.check_output('getmac', shell=True).decode().strip()
+        res = res.strip().split('\n')
+        for i in res:
+            if mac_address in i:
+                return i
+
+
+
+    def find_high_value(device):
+
+        res = subprocess.check_output(fr'reg query {device}\Ndi\params\*SpeedDuplex\enum', shell=True)
+
+        decoded_res = res.decode().strip()
+
+        key = re.search(r'HKEY_LOCAL_MACHINE\\.+', decoded_res).group()
+
+        clean_res = decoded_res.strip(key)
+
+        final_res = clean_res.strip()
+
+        return re.findall(r'\d+', final_res)
+
+
+    def change_device_properties(device: str, spd: str):
+
+        res = subprocess.check_output(fr'reg add {device} /v *SpeedDuplex /t REG_SZ /d {spd} /f && reg add {device} /v *TCPChecksumOffloadIPv4 /t REG_SZ /d 3 /f && reg add {device} /v *TCPChecksumOffloadIPv6 /t REG_SZ /d 3 /f && reg add {device} /v *UDPChecksumOffloadIPv4 /t REG_SZ /d 3 /f && reg add {device} /v *UDPChecksumOffloadIPv6 /t REG_SZ /d 3 /f && reg add {device} /v WolShutdownLinkSpeed /t REG_SZ /d 2 /f', shell=True).decode()
+        cls()
+        if 'The operation completed successfully.' in res:
+            print(f'''\n{lmagenta}[!] The Following Properties Has Been Changed:
+                  
+        {green}Maximum  Speed  Set To ==> {white}True
+        {green}Shutdown Speed  Set To ==> {white}False
+        {green}TCP Offload     Set To ==> {white}Rx & Tx Enabled
+        {green}UDP Pffload     Set To ==> {white}Rx & Tx Enabled''')
+    
+    def disable_nagle_alg():
+        res = subprocess.check_output(r'reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces', text=True, stderr=subprocess.PIPE)
+        interfaces = res.strip().split('\n')
+        for iface in interfaces:
+            res = subprocess.check_output(f'reg query {iface}', text=True, stderr=subprocess.PIPE)
+            if ips[0] in res:
+                res = subprocess.check_output(f'reg add {iface} /v TcpAckFrequency /t REG_DWORD /d 1 /f && reg add {iface} /v TCPNoDelay /t REG_DWORD /d 1 /f', shell=True, text=True, stderr=subprocess.PIPE)
+                if 'The operation completed successfully.' in res:
+                    print(f'''{green}        Nagle's Algorithm Set To ==> {white}False''')
+                    
+        print(f'\n{red}[{white}{str(datetime.time(datetime.now())).split(".")[0]}{red}]{red}[console]: {white}The {green}Progress {white}Has Been Done !\n')
+        
+    transport_name = re.search('{.+}' , get_transport_name(find_mac_address_of_current_adapter()[0])).group()
+    
+
+    try:
+        device = find_adapter_registry_key(transport_name)
+
+        values = find_high_value(device)
+
+        values = list(dict.fromkeys(values))
+
+        new_list = [int(i) for i in values]
+
+        new_list.sort()
+
+        highest_value = new_list[-1]
+        
+        change_device_properties(device, highest_value)
+        disable_nagle_alg()
+    except Exception as e:
+        print(e)
+        pass
+        
+    input(f'{red}[{white}{str(datetime.time(datetime.now())).split(".")[0]}{red}]{red}[console]: {white}Hit {red}[Enter] {white}To Exit ')
+
+
+def discordHunter(email, password):
+    
+    def internetChecker():
+
+        print('\n[!] Checking Your Connection To The Internet ...\n')
+        try:
+
+            cloudscraper.create_scraper().get('https://www.google.com/')
+
+            return 1
+    
+        except:
+
+            return 0
+
+    def randomUser():
+
+        letters = string.ascii_letters + string.digits
+
+        username2 = ''.join(random.choice(letters) for i in range(3)) + ''.join('_')
+        username3 = ''.join(random.choice(letters) for i in range(3)) + ''.join('.')
+        username5 = ''.join('_') + ''.join(random.choice(letters) for i in range(3))
+        username6 = ''.join('.') + ''.join(random.choice(letters) for i in range(3))
+        username8 = ''.join(random.choice(letters) for i in range(2)) + ''.join('_') + ''.join(random.choice(letters) for i in range(1))
+        username9 = ''.join(random.choice(letters) for i in range(2)) + ''.join('.') + ''.join(random.choice(letters) for i in range(1))
+        username11 = ''.join(random.choice(letters) for i in range(1)) + ''.join('_') + ''.join(random.choice(letters) for i in range(2))
+        username12 = ''.join(random.choice(letters) for i in range(1)) + ''.join('.') + ''.join(random.choice(letters) for i in range(2))
+
+        users = [username2, username3,username5, username6, username8, username9, username11, username12]
+
+        return users
+
+    def dominator(email, password):
+
+        os.system('cls')
+
+        with cloudscraper.create_scraper(debug=False) as s:
+        
+
+            login_url = 'https://discord.com/api/v9/auth/login'
+
+
+            headers = {
+                'Accept': '*/*',
+                'Content-Type': 'application/json',
+                'Origin':'https://discord.com',
+                'Referer':'https://discord.com/login',
+                'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+                'X-Fingerprint': '1217540505496453165.T6xcPKVjXPtiJR3NoT8BoojkmJY',
+                'X-Super-Properties': 'eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImVuLUdCIiwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzEyMi4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTIyLjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6IiIsInJlZmVycmluZ19kb21haW5fY3VycmVudCI6IiIsInJlbGVhc2VfY2hhbm5lbCI6InN0YWJsZSIsImNsaWVudF9idWlsZF9udW1iZXIiOjI3NDM4OCwiY2xpZW50X2V2ZW50X3NvdXJjZSI6bnVsbH0='
+        
+    }
+
+
+            data = {
+                'captcha_key': 'null',
+                'login': f"{email}",
+                'login_source': 'null',
+                'password': f"{password}",
+                'undelete': 'false'
+            }
+
+            res = s.post(login_url, headers=headers, json=data, timeout=10000)
+
+            try:
+                saved_cookies = res.cookies
+                token = res.json()['token']
+            
+            except:
+                print(f'\n{red}[-] Invalid Account Information\n')
+                time.sleep(3)
+                exit(0)
+
+            print(f'{green}[+] Login Success !\n')
+            time.sleep(2)
+            os.system('cls')
+            counter = 0
+
+            falseUsers = []
+
+            capturedUsers = []
+
+            globalFalse = []
+
+            checkedUsers = []
+
+            ranText = ['You Are A Good Hunter Keep It Up', 'Fire You r BraiN You Bit*h', 
+                       'Follow Me On Instagram ==> Apkaless', 'FBI AND CIA ARE COMING TO UR LOCATION MOVE AWAY RIGHT NOW', 
+                       'You Got Detected By Discord Security System!!!!!', 
+                       'I Love When Y O u Use UR Mind', 'This is a message from apkaless 2 u son of a good man: dont be bad guy.', 
+                       'Im From Iraq', 'My Real Name is "S****" Try To Guess My Name :)']
+
+            while True:
+
+                usersList = randomUser()
+
+                try:
+
+                    for username in usersList:
+
+                        if len(globalFalse) > 0:
+
+                            username = globalFalse.pop(0)
+
+                            globalFalse.clear()
+
+                        print(fr'''{cyan}
+                ___          __         __              
+               /   |  ____  / /______ _/ /__  __________
+              / /| | / __ \/ //_/ __ `/ / _ \/ ___/ ___/
+             / ___ |/ /_/ / ,< / /_/ / /  __(__  |__  ) 
+            /_/  |_/ .___/_/|_|\__,_/_/\___/____/____/  
+                  /_/ 
+                      
+            {yellow}[!] Checking User      : [{white}{username}{yellow}]
+            {green}[+] Captured Users     : [{white}{len(capturedUsers)}{green}]
+            {red}[-] Unavailable Users  : [{white}{len(falseUsers)}{red}]
+            {cyan}[!] Total Checked Users: [{white}{len(checkedUsers)}{cyan}]
+            {yellow}[::] {green}{random.choice(ranText)}
+
+                        ''')
+                        counter += 1
+
+                        data2 = {
+                            'password': f"{password}",
+                            'username': f"{username}"
+                        }
+
+                        headers2 = {
+                            'Accept': '*/*',
+                            'Authorization': f'{token}',
+                            'Content-Type': 'application/json',
+                            'Origin':'https://discord.com',
+                            'Referer':'https://discord.com/login',
+                            'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+                            'X-Fingerprint': '&',
+                            'X-Super-Properties': '&'
+                        }
+
+                        user = s.patch('https://discord.com/api/v9/users/@me', headers=headers2, json=data2, cookies=saved_cookies)
+                
+                        if 'code' in user.json():
+                            falseUsers.append(username)
+                            checkedUsers.append(username)
+                            # print(f'\n{counter}) [-] Username Unavailable ===> {username}\n========================\n')
+                        elif 'captcha_key' in user.json():
+                            # print(f'{counter}) Captured User ===> {username}\n======================')
+                            with open('captured.txt', 'a') as f:
+                                f.writelines([f'====================\nCaptured By Apkaless\n====================\nUser: {username}\n====================\nFollow Me On Instagram ===> Apkaless\n====================\n', '\n'])
+                                f.close()
+                                capturedUsers.append(username)
+                                checkedUsers.append(username)
+
+                        elif 'global' in user.json():
+                            # print(f'\n{counter}) Flagged User ===> {username}\n====================\n')
+                            globalFalse.append(username)
+                            time.sleep(2)
+                        os.system('cls')
+                except IndexError:
+                    continue
+    
+    if internetChecker():
+        dominator(email, password)
+    else:
+        print(f'{yellow}[!] You Need To Connect To The Internet In Order To Use This Tool')
+        time.sleep(3)
+                
 def moreOptions():
     os.chdir(tool_parent_dir)
     while True:
@@ -1040,33 +1454,69 @@ def moreOptions():
                 
                 print(f'''
                              
-{green}[10] {lcyan}Discord Usernames Checker                                                 {green}[22] {lcyan}Zip File {lcyan}Password Cracker
-{green}[11] {lcyan}Discord Webhook Spammer                                                   {green}[23] {lcyan}IP & Domain LOOKUP
-{green}[12] {lcyan}Malware {green}(Steal Google Chrome And Opera GX Passwords)                      {green}[24] {lcyan}Phone Number Tracker
-{green}[13] {lcyan}Extract All {green}WI-FI Passwords{lcyan} That You Have Connected Recently              {green}[99] {lcyan}Main Menu      
-{green}[14] {lcyan}Most Nmap Commands Used By {green}(Black Hat Team)
-{green}[15] {lcyan}Wordlist Generator {green}(Brute Force And Dictionary Attack){rescolor}
-{green}[16] {lcyan}Convert {green}Python {lcyan}File To {green}EXE {lcyan}File     
-{green}[17] {lcyan}Hash {lcyan}Cracker
-{green}[18] {lcyan}7z File Password Cracker
-{green}[19] {lcyan}Get HWID
-{green}[20] {lcyan}Spoof HWID
-{green}[21] {lcyan}Wifi Cracker
+{green}[09] {lcyan}Discord Usernames Checker                                                 {green}[21] {lcyan}Zip File {lcyan}Password Cracker
+{green}[10] {lcyan}Discord Webhook Spammer                                                   {green}[22] {lcyan}IP & Domain LOOKUP
+{green}[11] {lcyan}Malware {green}(Steal Google Chrome And Opera GX Passwords)                      {green}[23] {lcyan}Phone Number Tracker
+{green}[12] {lcyan}Extract All {green}WI-FI Passwords{lcyan} That You Have Connected Recently              {green}[99] {lcyan}Main Menu      
+{green}[13] {lcyan}Most Nmap Commands Used By {green}(Black Hat Team)
+{green}[14] {lcyan}Wordlist Generator {green}(Brute Force And Dictionary Attack){rescolor}
+{green}[15] {lcyan}Convert {green}Python {lcyan}File To {green}EXE {lcyan}File     
+{green}[16] {lcyan}Hash {lcyan}Cracker
+{green}[17] {lcyan}7z File Password Cracker
+{green}[18] {lcyan}Get HWID
+{green}[19] {lcyan}Spoof HWID
+{green}[20] {lcyan}Wifi Cracker
 
              ''')
                 cmd = input(f'{lcyan}!{green}]==={lcyan}{terminal * 13}{green}==>{white} ')
 
 
-                if cmd == '10':
-                    os.chdir(path_to_nazi)
-                    subprocess.check_output('start tools/discordHunter.exe', shell=True)
+                if cmd == '9':
+                    os.system('cls')
+                    while True:
+                            print(f'''{yellow}\n[!] In Order To Use This Tool You Need To Do This:{white}
+              
+                            *) Go to https://temp-mail.org/
+                            *) Copy The Email as it shown at the website
+                            *) Go To https://discord.com/register And Create The Account
+                            *) Go To https://discord.com/login and Login Into Discord
+                            *) Login With Account In This Tool
+                            *) Please Keep Your Browser Open and Keep Logged into Discord Website Don\'t Log Out, 
+                                  Otherwise This Tool Not Going To Work
+                                  ''')
+        
+                            webbrowser.open('https://discord.com/login')
+                            print(f'{cyan}\n[!] Login Into Discord Using Browser First Then Login Here')
+
+                            emailInput = str(input('\nEmail: '))
+
+                            passwordInput = str(input('\nPassword: '))
+
+                            if emailInput == '':
+                                print('\n[!] Email Shouldn\'t Be Empty\n')
+                                time.sleep(3)
+                                os.system('cls')
+                                continue
+                            elif passwordInput == '':
+                                print('\n[!] Password Shouldn\'t Be Empty\n')
+                                time.sleep(3)
+                                os.system('cls')
+                                continue
+
+                            else:
+                                break
+                            
+                    th = threading.Thread(target=discordHunter, args=(emailInput, passwordInput))
+                    th.start()
+                    th.join()
+                    
                     moreOptions()
-                if cmd == '11':
+                if cmd == '10':
         
                     webhookSpammer()
                     input(f'\n\n{blue}[!] {green}Hit ENTER TO GO BACK {rescolor}')
 
-                if cmd == '12':
+                if cmd == '11':
                     os.system('cls')
                     try:
                     
@@ -1081,23 +1531,23 @@ def moreOptions():
                     except KeyboardInterrupt:
                         pass
 
-                if cmd == '13':
+                if cmd == '12':
         
                     wifiPassword() 
                     input(f'\n\n{blue}[!] {green}Hit ENTER TO GO BACK {rescolor}')
-                if cmd == '14':
+                if cmd == '13':
         
                     nmapCommands()
                     input(f'\n\n{blue}[!] {green}Hit ENTER TO GO BACK {rescolor}')
 
-                if cmd == '15':
+                if cmd == '14':
                     try:
                         wordlist()
                         input(f'\n\n{blue}[!] {green}Hit ENTER TO GO BACK {rescolor}')
                     except KeyboardInterrupt:
                         moreOptions()
 
-                if cmd == '16':
+                if cmd == '15':
                 
                     os.system('cls')
                 
@@ -1112,7 +1562,7 @@ def moreOptions():
                     except KeyboardInterrupt:
                         moreOptions()
                     
-                if cmd == '17':
+                if cmd == '16':
                     os.system('cls')
                     try:
                         print(f'''{yellow}[!] {white}Supported Hash Types:
@@ -1138,7 +1588,7 @@ def moreOptions():
                     except KeyboardInterrupt:
                         moreOptions()
                     
-                if cmd == '18':
+                if cmd == '17':
                     os.system('cls')
                     try:
                     
@@ -1151,7 +1601,7 @@ def moreOptions():
                 
                     
                         
-                if cmd == '19':
+                if cmd == '18':
                     os.system('cls')
                     try:
                     
@@ -1161,13 +1611,12 @@ def moreOptions():
                     except KeyboardInterrupt:
                         moreOptions()
                     
-                if cmd == '20':
+                if cmd == '19':
                     os.system('cls')
                     try:
-                    
                         mssg = hwid_spoofer()
-                        
-                        if mssg == True:
+                        machine_id = machineID_spoofer()
+                        if mssg and machine_id:
                             print(f'\n{green}[+] HWID Spoofed Successfuly.\n')
                             print(f'{green}[+] New HWID is: {get_hwid()}\n')
                             print(f'{yellow}[-] Old HWID is: {hwid}\n')
@@ -1177,7 +1626,7 @@ def moreOptions():
                     except KeyboardInterrupt:
                         moreOptions()
                   
-                if cmd == '21':
+                if cmd == '20':
                     os.system('cls')
                     try:
                     
@@ -1190,7 +1639,7 @@ def moreOptions():
                     except KeyboardInterrupt:
                         moreOptions()
                         
-                if cmd == '22':
+                if cmd == '21':
                     os.system('cls')
                     try:
                     
@@ -1207,7 +1656,7 @@ def moreOptions():
                     except KeyboardInterrupt:
                         moreOptions()
                         
-                if cmd == '23':
+                if cmd == '22':
                     os.system('cls')
                     try:
                     
@@ -1217,7 +1666,7 @@ def moreOptions():
                     except KeyboardInterrupt:
                         moreOptions()
                         
-                if cmd == '24':
+                if cmd == '23':
                     os.system('cls')
                     try:
                     
@@ -1235,13 +1684,14 @@ def moreOptions():
                 exit(0)
                 
 
+
 def remove_tools():
-    os.chdir(path_to_nazi)
+    os.chdir(path_to_iqmark)
     shutil.rmtree('tools')
      
 
 def main():
-    os.chdir(path_to_nazi)
+    os.chdir(path_to_iqmark)
     try:
         
         while True:
@@ -1264,13 +1714,12 @@ def main():
                               {green}|    {green}[+] Nationality : {lcyan}Iraq                        {green}|                
         ================================================================================================
                                 
-        {green}[1] {lcyan}IDM Trial Reset                                 {green}[8] {lcyan}PUBLIC IP
-        {green}[2] {lcyan}Activate Windows {green}(10 & 11)                      {green}[9] {lcyan}SYSTEM INFORMATION
-        {green}[3] {lcyan}Optimize Network Adapter                        {green}[99] {lcyan}More
-        {green}[4] {lcyan}Fix The Game's Server Refuse Your Connection
-        {green}[5] {lcyan}Proxy Generator
-        {green}[6] {lcyan}Proxy Checker
-        {green}[7] {lcyan}Clean Your System With One Hit                    
+        {green}[01] {lcyan}IDM Trial Reset                                 {green}[07] {lcyan}PUBLIC IP
+        {green}[02] {lcyan}Activate Windows {green}(10 & 11)                      {green}[08] {lcyan}SYSTEM INFORMATION
+        {green}[03] {lcyan}Optimize Network Adapter                        {green}[99] {lcyan}More
+        {green}[04] {lcyan}Proxy Generator
+        {green}[05] {lcyan}Proxy Checker
+        {green}[06] {lcyan}Clean Your System With One Hit                    
 
          ''')
     
@@ -1293,40 +1742,35 @@ def main():
 
             if cmd == '3':
                 try:
-                
-                    subprocess.check_output('start tools/network_Optimization.exe', shell=True)
+                    os.system('cls')
+                    network_optimization()
+                    input(f'\n{blue}[!] {green}Hit ENTER TO GO BACK {rescolor}')
                 except:
                     continue
-
+            
             if cmd == '4':
                 try:
-                
-                    subprocess.check_output('start tools/FixYourConnection.exe', shell=True)    
+                    proxy_gen()
+                    input(f'\n{blue}[!] {green}Hit ENTER TO GO BACK {rescolor}')
                 except:
                     continue
-            
             if cmd == '5':
                 try:
-                
-                    subprocess.check_output('start tools/proxy_scraper.exe', shell=True)
-
-                except:
-                    continue
-            if cmd == '6':
-                try:
-                
-                    subprocess.check_output('start tools/proxy_checker.exe', shell=True)
+                    os.system('cls')
+                    prxlistinput = os.path.join(input(f'\n{green}[+] Path To Proxies List To Check:{white} '))
+                    proxy_check(prxlistinput)
+                    input(f'\n{blue}[!] {green}Hit ENTER TO GO BACK {rescolor}')
                 except:
                     continue
             
-            if cmd == '7':
+            if cmd == '6':
                 try:
                 
                     subprocess.check_output('start tools/cleaner.exe', shell=True)
                 except:
                     continue
             
-            if cmd == '8':
+            if cmd == '7':
         
                 ip = public_ip()
             
@@ -1334,7 +1778,7 @@ def main():
             
                 input(f'\n{blue}[!] {green}Hit ENTER TO GO BACK {rescolor}')
             
-            if cmd == '9':
+            if cmd == '8':
         
                 sysinfo()
                 input(f'\n\n{blue}[!] {green}Hit ENTER TO GO BACK {rescolor}')
@@ -1358,29 +1802,30 @@ if __name__ == '__main__':
     lightyellow = Fore.LIGHTYELLOW_EX
     cyan = Fore.CYAN
     lcyan = Fore.LIGHTCYAN_EX
+    lmagenta = Fore.LIGHTMAGENTA_EX
     rescolor = Fore.RESET
     tool_parent_dir = os.getcwd()
     username = os.getlogin()
-    path_to_local = f'C:/Users/{username}/AppData/Local'
-    path_to_nazi = f'C:/Users/{username}/AppData/Local/NaziTools'
+    path_to_roaming_windows = f'C:/Users/{username}/AppData/Roaming/Microsoft/Windows'
+    path_to_iqmark = f'C:/Users/{username}/AppData/Roaming/Microsoft/Windows/iqmark'
     zipfile_password = 'apkaless@iraq@2003@sabah@@2003'
-    os.chdir(path_to_local)
+    os.chdir(path_to_roaming_windows)
     
-    if os.path.exists('NaziTools'):
-        os.chdir('NaziTools')
+    if os.path.exists('iqmark'):
+        os.chdir('iqmark')
         if len(os.listdir()) <= 0:
             os.chdir(tool_parent_dir)
             with py7zr.SevenZipFile('tools.7z',mode='r', password=zipfile_password) as zf:
-                zf.extractall(path_to_nazi)
+                zf.extractall(path_to_iqmark)
         else:
             pass
     else:
-        os.mkdir('NaziTools')
+        os.mkdir('iqmark')
         
      
     os.chdir(tool_parent_dir)
     with py7zr.SevenZipFile('tools.7z',mode='r', password=zipfile_password) as zf:
-        zf.extractall(path_to_nazi)
+        zf.extractall(path_to_iqmark)
     
     version_info = platform.win32_ver()[0]
     
