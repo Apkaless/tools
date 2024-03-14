@@ -1,4 +1,4 @@
-# Author ==> Apkaless, Iraqi (MM6xAk), Instagram ==> Apkalees |
+# Author ==> Apkaless, Iraqi (MM6xAk), Instagram ==> Apkaless |
 
 import urllib.request
 

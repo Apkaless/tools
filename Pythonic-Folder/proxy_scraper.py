@@ -164,7 +164,7 @@ class SCRAPER:
 
                 res = requests.get(url, headers=SCRAPER.headers, timeout=SCRAPER.timeout)
 
-                scraped_proxies = re.findall('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}', res.text)
+                scraped_proxies = re.findall(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}', res.text)
 
                 SCRAPER.proxies.extend(scraped_proxies)
 
@@ -232,7 +232,7 @@ def intro():
     yellow = Fore.YELLOW 
     white = Fore.WHITE
     cyan = Fore.CYAN
-    print(f'''{cyan}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+    print(fr'''{cyan}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 
                           ____                           _____                                
                          / __ \_________  _  ____  __   / ___/______________ _____  ___  _____
