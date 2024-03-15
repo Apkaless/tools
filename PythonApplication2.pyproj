@@ -4,8 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>9807cc92-7dec-4750-ab99-aca5ffdcdce9</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>
-    </StartupFile>
+    <StartupFile>PythonApplication2.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -24,7 +23,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="loader.py" />
+    <Compile Include="PythonApplication2.py" />
     <Compile Include="pytools\discordHunter.py" />
     <Compile Include="pytools\network_Optimization.py" />
     <Compile Include="pytools\proxy_scraper.py" />
@@ -35,7 +34,6 @@
     <Folder Include="pytools\__pycache__\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="PythonApplication2.pye" />
     <Content Include="pytools\__pycache__\proxy_scraper.cpython-312.pyc" />
     <Content Include="pytools\__pycache__\pythonic_way_proxy_checker.cpython-312.pyc" />
   </ItemGroup>
