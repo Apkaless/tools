@@ -800,6 +800,8 @@ def hash_cracker(hash, pwds, hash_type):
         
         hash_to_crack = hash
         hashtype = supported_hashes[hash_type]
+        hashCaptured = False
+        
         try:
             
             with open(pwds, 'r') as f:
@@ -812,15 +814,42 @@ def hash_cracker(hash, pwds, hash_type):
                     if testing_hash == hash_to_crack:
                 
                         print(f'{green}[+] Hash Has Been Cracked:{white} {passwd}')
+                        hashCaptured = True
                         break
                     else:
                         print(f'{yellow}[!] Trying With:{white} {passwd}')
                         continue
                 else:
                     print(f'\n{green}[+] {white}Process Has Been Finished')
+                    
         except OSError:
             os.system('cls')
             print(f'\n{red}[-] The Passwords List Not Found, Please Make Sure You Have The Correct Path.')
+        
+        finally:
+            if hashCaptured:
+                try:
+                    os.chdir(tool_parent_dir)
+                    
+                    try:
+                        os.mkdir('Hash_Cracker')
+                    except FileExistsError:
+                        os.chdir('Hash_Cracker')
+                    else:
+                        os.chdir('Hash_Cracker')
+                        
+                    with open('hash_cracker.txt', 'a') as hashfile:
+                        hashfile.writelines([f'Hash: {hash_to_crack}\nCracked Hash: {passwd}', '\n\n'])
+                        hashfile.close()
+                    
+                except Exception as e:
+                    print(f'{red}[-] Error Details: {white}{e}')
+                 
+                else:
+                    print(f'\n{green}[+] Hash Saved Into: {white}{os.path.abspath('hash_cracker.txt')}')
+                
+            else:
+                return False
     else:
         print(f'\n{red}[-] {white}Hash Type Isn\'t Supported !')
         time.sleep(3)
@@ -1581,6 +1610,7 @@ def moreOptions():
                             print(f'\n{red}[-] Hash Type is Invalid !')
                             time.sleep(3)
                             moreOptions()
+                        os.system('cls')
                         hash = input(f'\n{green}[+] Hash To Crack:{white} ')
                         pwdlistinput = os.path.join(input(f'\n{green}[+] Path To Passwords List To Use:{white} '))
                         hash_cracker(hash, pwdlistinput, hash_type)
@@ -1681,7 +1711,8 @@ def moreOptions():
                 if cmd == '99':
                     main()
             except KeyboardInterrupt:
-                exit(0)
+                os.system('cls')
+                print(f'\n{lmagenta}See You Later {green}Mr.{username}\n')
                 
 
 
@@ -1790,7 +1821,8 @@ def main():
         time.sleep(1)
         
     except KeyboardInterrupt:
-        exit(0)
+        os.system('cls')
+        print(f'\n{lmagenta}See You Later {green}Mr.{username}\n')
            
 if __name__ == '__main__':
     os.system('cls')
@@ -1837,7 +1869,7 @@ if __name__ == '__main__':
     else:
         
         codename = 'Nazi'
-        terminal = '@'
+        terminal = '#'
         
     hwid = get_hwid()
     
