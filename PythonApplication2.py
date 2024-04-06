@@ -12,7 +12,6 @@ import threading
 import time
 import webbrowser
 from datetime import datetime
-from threading import Thread
 from zipfile import ZipFile, is_zipfile
 from tkinter import messagebox
 import cloudscraper
@@ -28,9 +27,114 @@ from colorama import Fore
 from opencage.geocoder import OpenCageGeocode
 from phonenumbers import geocoder, timezone, carrier
 from pywifi import const
-
 from pytools.proxy_scraper import SCRAPER
 from pytools.pythonic_way_proxy_checker import HttpProxyChecker, Socks4ProxyChecker, Socks5ProxyChecker
+import _tkinter
+import requests
+import colorama
+from colorama import Fore
+from threading import Thread
+import tkinter as tk
+from tkinter import *
+from time import sleep
+
+
+class usernameFinder(tk.Tk):
+
+    websites = {
+        'Instagram': 'https://www.instagram.com/',
+        'Github': 'https://github.com/',
+        'Twitter': 'https://twitter.com/',
+        'LinkedIn': 'https://www.linkedin.com/in/',
+        'Twitch': 'https://www.twitch.tv/',
+        'TikTok': 'https://www.tiktok.com/@',
+        'YouTube': 'https://www.youtube.com/@',
+        'Reddit': 'https://www.reddit.com/user/'
+
+    }
+
+    def __init__(self):
+        super().__init__()
+
+        self.title("Username Finder")
+        self.geometry("600x500")
+        self.resizable(width=False, height=False)
+        self.configure(bg="#232221")
+        icon = PhotoImage(width=1, height=1)
+        self.iconphoto(True, icon)
+        # main frame holds text,entry and search button widgets
+        self.mainframe = Frame(self, bg='#232221', width='600', height='500')
+        self.mainframe.place(relx=0.5, rely=0.1, anchor='center')
+
+        # DEFINE WIDGETS
+        self.label = Label(self.mainframe, text="Username", bg='#232221', fg='white', font=('Helvetica', 11, 'bold'))
+        self.label.grid(row=0, column=0, padx=5, pady=5)
+        self.entry = Entry(self.mainframe, font=('Helvetica', 9, 'bold'))
+        self.entry.config(width=30)
+        self.entry.grid(column=1, row=0)
+        self.btn = Button(self.mainframe, text="Search", width=15, command=self.start_search)
+        self.btn.grid(row=0, column=2, padx=10, pady=5)
+
+        # Second frame holds the result box
+        self.resultFrame = Frame(self, bg='white')
+        self.resultFrame.place(relx=0.5, rely=0.5, anchor='center')
+
+        # DEFINE Text Widget
+        self.scrollbar = Scrollbar(self.resultFrame)
+        self.scrollbar.pack(side=RIGHT, fill='y')
+
+        self.resultBox = Text(self.resultFrame, width=80, height=15, bg='black', fg='white', highlightcolor='white',
+                              highlightthickness=1, font=('Helvetica', 9, 'bold'), padx=5, pady=5,
+                              yscrollcommand=self.scrollbar.set)
+        self.resultBox.pack(expand=True, fill=BOTH)
+        self.resultBox.bind('<Key>', lambda e: 'break')
+
+        self.scrollbar.config(command=self.resultBox.yview)
+        self.resultBox.bind("<Button-3>", self.show_menu)
+        self.menu = Menu(self.resultBox, tearoff=0)
+        self.menu.add_command(label="Copy", command=self.copy_text)
+
+    def show_menu(self, event):
+        self.menu.post(event.x_root, event.y_root)
+
+    def copy_text(self):
+        try:
+
+            selected_text = self.resultBox.get("sel.first", "sel.last")
+            self.resultBox.clipboard_clear()
+            self.resultBox.clipboard_append(selected_text)
+            self.menu.unpost()
+        except _tkinter.TclError:
+            pass
+
+    def start_search(self):
+        start_thread = Thread(target=self.searchUsername)
+        start_thread.start()
+
+    def searchUsername(self):
+        self.resultBox.delete('1.0', END)
+        try:
+            username = self.entry.get().lower()
+        except _tkinter.TclError:
+            pass
+
+        else:
+
+            if len(username) != 0:
+
+                for website in self.websites:
+                    sleep(0.1)  # 100ms
+                    full_url = self.websites[website] + username
+                    r = requests.get(full_url, headers={'User-Agent': 'Mozilla/5.0'})
+                    if r.status_code == 200:
+                        buffer = f'Found on {website}: {full_url}' + '\n\n'
+                        self.resultBox.insert(END, buffer)
+                        self.resultBox.tag_configure("green", foreground="green")
+                        self.resultBox.tag_add("green", "1.0", "end")
+            else:
+                self.resultBox.insert(END, 'Please enter a valid username.')
+                self.resultBox.tag_configure("red", foreground="red")
+                self.resultBox.tag_add("red", "1.0", "end")
 
 
 def phoneNumberTracker(phoneNumber):
@@ -1758,13 +1862,14 @@ def main():
                               {green}|    {green}[+] Codename    : {lcyan}{codename}                          {green}|
                               {green}|    {green}[+] Nationality : {lcyan}Iraq                        {green}|                
         ================================================================================================
-                                
-        {green}[01] {lcyan}IDM Trial Reset                                 {green}[07] {lcyan}YinOmega
-        {green}[02] {lcyan}Clean Your System With One Hit                  {green}[08] {lcyan}PUBLIC IP
-        {green}[03] {lcyan}Activate Windows {green}(10 & 11)                      {green}[09] {lcyan}SYSTEM INFORMATION
+                                                                            
+        {green}[01] {lcyan}IDM Trial Reset                                 {green}[08] {lcyan}YinOmega
+        {green}[02] {lcyan}Clean Your System With One Hit                  {green}[09] {lcyan}PUBLIC IP
+        {green}[03] {lcyan}Activate Windows {green}(10 & 11)                      {green}[10] {lcyan}SYSTEM INFORMATION
         {green}[04] {lcyan}Optimize Network Adapter                        {green}[99] {lcyan}More
         {green}[05] {lcyan}Proxy Generator
-        {green}[06] {lcyan}Proxy Checker                  
+        {green}[06] {lcyan}Proxy Checker
+        {green}[07] {lcyan}Username Searcher                  
 
          ''')
 
@@ -1785,7 +1890,6 @@ def main():
                     continue
 
             if cmd == '3':
-
                 subprocess.check_output('start tools/WindowsActivation.exe', shell=True)
 
             if cmd == '4':
@@ -1811,15 +1915,19 @@ def main():
                     continue
 
             if cmd == '7':
+                username = usernameFinder()
+                username.mainloop()
+
+            if cmd == '8':
                 threading.Thread(target=messagebox.showinfo, args=('Password', 'The Password is: 0xy1n')).start()
                 threading.Thread(target=lambda: subprocess.check_output('start tools/yinOmega.exe', shell=True)).start()
 
-            if cmd == '8':
+            if cmd == '9':
                 ip = public_ip()
                 print(f'\n{green}[+] Public IP:{white} {ip}')
                 input(f'\n{blue}[!] {green}Hit ENTER TO GO BACK {rescolor}')
 
-            if cmd == '9':
+            if cmd == '10':
                 sysinfo()
                 input(f'\n\n{blue}[!] {green}Hit ENTER TO GO BACK {rescolor}')
 
