@@ -40,16 +40,16 @@ def write_records(hit: bool, bad: bool, combo_to_record: str):
     user = combo_to_record.split(':')[0]
     passwd = combo_to_record.split(':')[1]
     buff = f'''
-    ┌──────────────────────────────────────┓
-    ┧ Owner Info
-    ┧ Name ➞ Sabah
+    ┌────────────────Owner Info────────────────┓
+    ┧ Checker Coded By Apkaless
     ┧ Instagram ➞ Apkaless
+    ┧ Discord ➞ https://discord.gg/uj8AEUcQ5J
     ┧ Github ➞ https://github.com/apkaless
-    ┧──────────────────────────────────────┧
-    ┧ Login Info
+    ┧
+    ┧────────────────Login Info────────────────┧
     ┧ User ➞ {user}
     ┧ Password ➞ {passwd}
-    ┗──────────────────────────────────────┘
+    ┗──────────────────────────────────────────┘
     '''
     try:
         os.chdir(RESULTS_LOCATION)
@@ -106,7 +106,7 @@ def display_info(captures: int, deads: int, errors: int, total: int, bot, remain
                              ____/   _|  ___| _/  _\ _|  _|   \___| _| _| ___| \___| _|\_\ ___| _|_\ 
     
     
-    {lb}========================================================================================================================
+    {lb}===================================================================================================================
     
                                                 {lw}[!] Total Accounts: [{cyan}{str(total).strip()}{lw}]
                                                 {green}[+] Hit           : [{cyan}{str(captures).strip()}{green}]
@@ -115,7 +115,7 @@ def display_info(captures: int, deads: int, errors: int, total: int, bot, remain
                                                 {lr}[-] Errors        : [{cyan}{str(errors).strip()}{lr}]
                                                 {lw}[!] Remaining     : [{cyan}{str(remain).strip()}{lw}]
     
-    {lb}========================================================================================================================
+    {lb}===================================================================================================================
     
     ''')
     except:
